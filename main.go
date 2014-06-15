@@ -16,11 +16,11 @@ import (
 )
 
 var (
-	host     *string = flag.String("host", "", "target host or address")
-	port     *string = flag.String("port", ":8080", "target port")
-	ssl      *bool   = flag.Bool("ssl", false, "whether or not to proxy an SSL connection")
-	latency  *int    = flag.Int("latency", 0, "in milliseconds")
-	activity *string = flag.String("activity", "", "Android Component")
+	host    *string = flag.String("host", "", "target host or address")
+	port    *string = flag.String("port", ":8080", "target port")
+	ssl     *bool   = flag.Bool("ssl", false, "whether or not to proxy an SSL connection")
+	latency *int    = flag.Int("latency", 0, "in milliseconds")
+	pkg     *string = flag.String("pkg", "", "Android package name")
 )
 
 type errorHandler func(w http.ResponseWriter, r *http.Request) error
@@ -181,7 +181,7 @@ func init() {
 	flag.Parse()
 
 	if flag.NFlag() < 1 {
-		fmt.Println("usage: goatproxy -host target_host -port:8080 -ssl=false -latency=0 -activity=com.example/.MainActivity")
+		fmt.Println("usage: goatproxy -host target_host -port:8080 -ssl=false -latency=0 -pkg=com.example.app")
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
@@ -189,9 +189,11 @@ func init() {
 
 func main() {
 
-	if (len(*activity) > 0) {
-		fmt.Println("Android Component: ", *activity);
-		LaunchAndroid(*activity, *port)
+	if *pkg != "" {
+		err := launchAndroid()
+		if err != nil {
+			fmt.Println("ERROR: ", err);
+		}
 	}
 
 	http.Handle("/", errorHandler(proxyHandler))

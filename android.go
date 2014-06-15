@@ -5,48 +5,64 @@ import (
 	"net"
 	"os"
 	"strings"
+	"errors"
 	"github.com/wmbest2/android/adb"
 )
 
-func LaunchAndroid(component string, port string) {
+func launchAndroid() error {
 
 	name, err := os.Hostname()
 	if err != nil {
-		fmt.Printf("Oops: %v\n", err)
-		return
+		return err
 	}
 
 	addrs, err := net.LookupHost(name)
 	if err != nil {
-		fmt.Printf("Oops: %v\n", err)
-		return
+		return err;
 	}
 
 	devices := adb.ListDevices(nil)
 
 	if len(devices) == 0 {
-		fmt.Println("Oops: No devices found.\n")
-		return;
-	} else {
-		// TODO: chooser if more than one
-
-		cmd := []string { "shell", "am", "start", "-a", "android.intent.action.MAIN" }
-		cmd = append(cmd, "-n", component)
-		cmd = append(cmd, "-e", "goatProxyHosts", strings.Join(addrs, string(0xf09f9090)))
-		cmd = append(cmd, "-e", "goatProxyPort", port[1:])
-		cmd = append(cmd, "--activity-clear-top")
-
-		command := strings.Join(cmd, " ")
-		fmt.Println(command)
-
-		d := devices[0]
-		result, err := d.ExecSync(cmd...)
-
-		if err != nil {
-			fmt.Println("ERROR: ", err)
-		} else {
-			fmt.Println(string(result))
-		}
+		return errors.New("Oops: No devices found.\n");
 	}
 
+	// TODO: chooser if more than one
+	d := devices[0]
+
+	find := []string { "shell", "dumpsys", "package", *pkg }
+	find = append(find, "|", "grep", "-A1", "android.intent.action.MAIN:")
+	find = append(find, "|", "grep", *pkg)
+//	find = append(find, "|", "sed", "-e", "\"s:.*\\(" + *pkg + "/.*\\) filter.*:\\1:g\"")
+
+	fmt.Println(strings.Join(find, " "))
+
+	main, err := d.ExecSync(find...)
+
+	if err != nil {
+		return err;
+	}
+
+	trimmed := strings.Trim(string(main), " ")
+	component := strings.Split(trimmed, " ")
+	fmt.Println("Android Component: ", component[1]);
+
+	cmd := []string { "shell", "am", "start" }
+	cmd = append(cmd, "-a", "android.intent.action.MAIN")
+	cmd = append(cmd, "-n", component[1])
+	cmd = append(cmd, "-e", "goatProxyHosts", strings.Join(addrs, string(0xf09f9090)))
+	cmd = append(cmd, "-e", "goatProxyPort", (*port)[1:])
+	cmd = append(cmd, "--activity-clear-top")
+
+	fmt.Println(strings.Join(cmd, " "))
+
+	result, err := d.ExecSync(cmd...)
+
+	if err != nil {
+		return err;
+	}
+
+	fmt.Println(string(result))
+
+	return nil;
 }
