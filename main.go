@@ -16,10 +16,11 @@ import (
 )
 
 var (
-	host    *string = flag.String("host", "", "target host or address")
-	port    *string = flag.String("port", ":8080", "target port")
-	ssl     *bool   = flag.Bool("ssl", false, "whether or not to proxy an SSL connection")
-	latency *int    = flag.Int("latency", 0, "in milliseconds")
+	host     *string = flag.String("host", "", "target host or address")
+	port     *string = flag.String("port", ":8080", "target port")
+	ssl      *bool   = flag.Bool("ssl", false, "whether or not to proxy an SSL connection")
+	latency  *int    = flag.Int("latency", 0, "in milliseconds")
+	activity *string = flag.String("activity", "", "Android Component")
 )
 
 type errorHandler func(w http.ResponseWriter, r *http.Request) error
@@ -180,13 +181,19 @@ func init() {
 	flag.Parse()
 
 	if flag.NFlag() < 1 {
-		fmt.Println("usage: goatproxy -host target_host -ssl=false -latency=0")
+		fmt.Println("usage: goatproxy -host target_host -port:8080 -ssl=false -latency=0 -activity=com.example/.MainActivity")
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
 }
 
 func main() {
+
+	if (len(*activity) > 0) {
+		fmt.Println("Android Component: ", *activity);
+		LaunchAndroid(*activity, *port)
+	}
+
 	http.Handle("/", errorHandler(proxyHandler))
 
 	log.Fatal(http.ListenAndServe(*port, nil))
