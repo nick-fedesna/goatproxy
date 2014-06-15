@@ -5,8 +5,7 @@ A small HTTP proxy written in Go with option to launch an Android Activity passi
 
 ## Command Usage
 
-        $ ./goatproxy -host=my.app.com -port:8888 -ssl=true -latency=0 -activity=com.example/.MainActivity
-
+        $ ./goatproxy -host=my.app.com -port:8888 -ssl=true -latency=0 -pkg=com.example.app
 
 ## Android
 Drop this code into your project and in onCreate() of your main launch activity call `GoatProxy.getGoatProxy(this)` which will return the `Proxy` or `Proxy.NO_PROXY`. You'll need the permission `android.permission.ACCESS_WIFI_STATE`.
