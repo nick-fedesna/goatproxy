@@ -192,7 +192,7 @@ func main() {
 	if *pkg != "" {
 		err := launchAndroid()
 		if err != nil {
-			fmt.Println("ERROR: ", err);
+			log.Println(err.Error())
 		}
 	}
 
