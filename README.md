@@ -8,7 +8,11 @@ A small HTTP proxy written in Go with option to launch an Android Activity passi
         $ ./goatproxy -host=my.app.com -port:8888 -ssl=true -latency=0 -pkg=com.example.app
 
 ## Android
-Drop this code into your project and in onCreate() of your main launch activity call `GoatProxy.getGoatProxy(this)` which will return the `Proxy` or `Proxy.NO_PROXY`. You'll need the permission `android.permission.ACCESS_WIFI_STATE`.
+Requires permission `android.permission.ACCESS_WIFI_STATE`.
+
+Drop the code below into your project, call `GoatProxy.getGoatProxy(this)` in onCreate() of your main launch activity which returns the `Proxy` or `Proxy.NO_PROXY`.   
+
+SSL: override your `https://` network requests to use `http://` when using the Proxy.
 
 
 	import android.app.Activity;
@@ -66,3 +70,8 @@ Drop this code into your project and in onCreate() of your main launch activity 
     	}
 
 	}
+	
+###To-Do:
+* Android: remember Proxy info and test on IDE launch to see if proxy is still active
+* Android: Hook into Activity lifecycle callbacks to remove the need to pass Activity to getGoatProxy
+* Go: present device chooser when multiple adb devices found
