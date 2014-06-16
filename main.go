@@ -193,6 +193,7 @@ func main() {
 		err := launchAndroid()
 		if err != nil {
 			log.Println(err.Error())
+			return
 		}
 	}
 
