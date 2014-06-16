@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 	"errors"
-	"github.com/wmbest2/android/adb"
+	"github.com/nick-fedesna/android/adb"
 )
 
 func launchAndroid() error {
